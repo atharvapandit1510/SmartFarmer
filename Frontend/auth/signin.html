@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agri Mitra | Sign In</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
+</head>
+<body>
+    <div class="auth-container">
+        <h1>Welcome to Agri Mitra</h1>
+        <p>Please sign in to continue.</p>
+        <form id="auth-form">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" id="sign-in-btn">Sign In</button>
+            <button type="button" id="sign-up-btn">Create Account</button>
+        </form>
+        <div id="auth-message" class="message"></div>
+    </div>
+    <script type="module">
+        // // This is a placeholder for your Firebase config.
+        // // Replace this with your actual Firebase project configuration.
+        // const firebaseConfig = {
+        //     apiKey: "YOUR_API_KEY",
+        //     authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        //     projectId: "YOUR_PROJECT_ID",
+        //     storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        //     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        //     appId: "YOUR_APP_ID"
+        // };
+
+        // import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        // import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        
+        // const app = initializeApp(firebaseConfig);
+        // const auth = getAuth(app);
+        
+        // const signInBtn = document.getElementById('sign-in-btn');
+        // const signUpBtn = document.getElementById('sign-up-btn');
+        // const emailInput = document.getElementById('email');
+        // const passwordInput = document.getElementById('password');
+        // const authMessage = document.getElementById('auth-message');
+
+        // const handleAuth = async (isSignIn) => {
+        //     const email = emailInput.value;
+        //     const password = passwordInput.value;
+
+        //     if (password.length < 6) {
+        //         authMessage.textContent = 'Password must be at least 6 characters long.';
+        //         return;
+        //     }
+
+        //     try {
+        //         if (isSignIn) {
+        //             await signInWithEmailAndPassword(auth, email, password);
+        //         } else {
+        //             await createUserWithEmailAndPassword(auth, email, password);
+        //         }
+        //         // Redirect on success
+        //         window.location.href = '../index.html';
+        //     } catch (error) {
+        //         authMessage.textContent = `Error: ${error.message}`;
+        //     }
+        // };
+
+        // signInBtn.addEventListener('click', (e) => {
+        //     e.preventDefault();
+        //     handleAuth(true);
+        // });
+
+        // signUpBtn.addEventListener('click', (e) => {
+        //     e.preventDefault();
+        //     handleAuth(false);
+        // });
+    </script>
+</body>
+</html>
