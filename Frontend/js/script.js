@@ -1,13 +1,3 @@
-// This is a placeholder for your Firebase config.
-// Replace this with your actual Firebase project configuration.
-const firebaseConfig = {
-    apiKey: "AIzaSyDtckP71SvlocMLZiFpl52o0SjaRFqgK4k",
-    authDomain: "agrimitra-f8b11.firebaseapp.com",
-    projectId: "agrimitra-f8b11",
-    storageBucket: "agrimitra-f8b11.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
 
 const weatherApiKey = "e8e979366f4424844abc17afe58aa8fe"; // Replace with your key
 
