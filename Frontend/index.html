@@ -3,64 +3,540 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agri Mitra</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
+    <title>Agri Mitra | Intelligent Crop Advisor</title>
+    <!-- We load Tailwind CSS from a CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* A simple fade-in transition for our "pages" */
+        .page {
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
 </head>
-<body>
-    <div class="user-status-bar">
-        <span id="user-info">You are not logged in.</span>
-        <button id="sign-out-btn" style="display:none;">Sign Out</button>
-    </div>
+<body class="bg-gray-100 font-sans">
 
-    <h1>Agri Mitra: Your Intelligent Crop Advisor</h1>
+    <!-- 
+      This is the main application container.
+      All our "pages" live inside here.
+    -->
+    <div id="app" class="container mx-auto p-4 max-w-4xl">
 
-    <div id="app-content" style="display:none;">
-        <h2>Get Your Crop Recommendation</h2>
-        <p>Please enter your soil and weather data below to get a crop recommendation.</p>
-
-        <form id="crop-form">
-            <label for="soil">Soil Type:</label>
-            <select id="soil" name="soil_type" required>
-                <option value="">Select...</option>
-                <option value="clay">Clay</option>
-                <option value="loamy">Loamy</option>
-                <option value="sandy">Sandy</option>
-            </select>
-            <br>
-            <label for="ph">pH Level:</label>
-            <input type="number" step="0.1" id="ph" name="ph" required>
-            <br>
-            <label for="nitrogen">Nitrogen (N) Content:</label>
-            <input type="number" step="0.1" id="nitrogen" name="nitrogen" required>
-            <br>
-            <label for="phosphorus">Phosphorus (P) Content:</label>
-            <input type="number" step="0.1" id="phosphorus" name="phosphorus" required>
-            <br>
-            <label for="potassium">Potassium (K) Content:</label>
-            <input type="number" step="0.1" id="potassium" name="potassium" required>
-            <br>
-            <label for="rainfall">Rainfall (mm/year):</label>
-            <input type="number" step="0.1" id="rainfall" name="rainfall" required>
-            <br>
-            <label for="temperature">Temperature ($^oC$):</label>
-            <input type="number" step="0.1" id="temperature" name="temperature" required>
-            <br>
-            <button type="submit">Recommend Crop</button>
-        </form>
-        <div id="recommendation-result"></div>
-
-        <div class="schemes-section">
-            <h2>Active Government Schemes</h2>
-            <p>Here are some active government schemes in your region.</p>
-            <input type="text" id="state-input" placeholder="Enter your State (e.g., Punjab)" required>
-            <button id="get-schemes-btn">Get Schemes</button>
-            <div id="schemes-list"></div>
+        <!-- =================================================================
+             PAGE 1: LOGIN
+             This is shown to logged-out users.
+        ================================================================== -->
+        <div id="login-page" class="page">
+            <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md mx-auto mt-16">
+                <h1 class="text-4xl font-bold text-center text-green-700 mb-2">Agri Mitra</h1>
+                <p class="text-center text-gray-600 mb-8">Welcome back, Farmer!</p>
+                <form id="login-form" class="space-y-6">
+                    <div>
+                        <label for="login-email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="login-email" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="login-password" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold shadow-lg hover:bg-green-700 transition duration-300 ease-in-out transform hover:-translate-y-0.5">
+                        Sign In
+                    </button>
+                </form>
+                <p id="login-message" class="mt-4 text-center text-red-500"></p>
+                <p class="mt-6 text-center text-sm text-gray-600">
+                    Don't have an account? 
+                    <button id="show-signup-btn" class="font-medium text-green-600 hover:text-green-500">
+                        Sign Up
+                    </button>
+                </p>
+            </div>
         </div>
-    </div>
-    
-    <script src="js/script.js"></script>
+
+        <!-- =================================================================
+             PAGE 2: SIGN UP
+             This is shown when a user clicks "Sign Up".
+        ================================================================== -->
+        <div id="signup-page" class="page">
+            <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md mx-auto mt-16">
+                <h1 class="text-3xl font-bold text-center text-green-700 mb-6">Create Your Account</h1>
+                <form id="signup-form" class="space-y-5">
+                    <div>
+                        <label for="signup-username" class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" id="signup-username" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label for="signup-email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="signup-email" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label for="signup-password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="signup-password" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold shadow-lg hover:bg-green-700 transition duration-300 ease-in-out transform hover:-translate-y-0.5">
+                        Create Account
+                    </button>
+                </form>
+                <p id="signup-message" class="mt-4 text-center text-red-500"></p>
+                <p class="mt-6 text-center text-sm text-gray-600">
+                    Already have an account? 
+                    <button id="show-login-btn" class="font-medium text-green-600 hover:text-green-500">
+                        Sign In
+                    </button>
+                </p>
+            </div>
+        </div>
+
+        <!-- =================================================================
+             PAGE 3: DASHBOARD (The Main App)
+             This is shown to logged-IN users.
+        ================================================================== -->
+        <div id="dashboard-page" class="page">
+            <!-- Header Bar -->
+            <header class="flex justify-between items-center bg-white p-5 rounded-xl shadow-lg mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-green-700">Agri Mitra Dashboard</h1>
+                    <p id="user-info" class="text-gray-600">Welcome, farmer!</p>
+                </div>
+                <button id="logout-btn" class="bg-red-500 text-white py-2 px-5 rounded-lg font-semibold hover:bg-red-600 transition duration-300">
+                    Sign Out
+                </button>
+            </header>
+
+            <!-- Main Content Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- Left Column: Recommendation Form -->
+                <div class="lg:col-span-2 bg-white p-8 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Get Your Crop Recommendation</h2>
+                    
+                    <form id="crop-form" class="space-y-4">
+                        <!-- Form inputs are now in a responsive grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="soil-type" class="block text-sm font-medium text-gray-700">Soil Type</label>
+                                <select id="soil-type" name="soil_type" required class="mt-1 block w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                    <option value="">Select...</option>
+                                    <option value="clay">Clay</option>
+                                    <option value="loamy">Loamy</option>
+                                    <option value="sandy">Sandy</option>
+                                    <option value="alluvial">Alluvial</option>
+                                    <option value="red">Red</option>
+                                    <option value="black">Black</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="ph" class="block text-sm font-medium text-gray-700">Soil pH Level (0-14)</label>
+                                <input type="number" step="0.1" id="ph" name="ph" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            </div>
+                            <div>
+                                <label for="nitrogen" class="block text-sm font-medium text-gray-700">Nitrogen (N) (kg/ha)</label>
+                                <input type="number" id="nitrogen" name="nitrogen" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            </div>
+                            <div>
+                                <label for="phosphorus" class="block text-sm font-medium text-gray-700">Phosphorus (P) (kg/ha)</label>
+                                <input type="number" id="phosphorus" name="phosphorus" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            </div>
+                             <div>
+                                <label for="potassium" class="block text-sm font-medium text-gray-700">Potassium (K) (kg/ha)</label>
+                                <input type="number" id="potassium" name="potassium" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            </div>
+                            <div>
+                                <label for="rainfall" class="block text-sm font-medium text-gray-700">Annual Rainfall (mm)</label>
+                                <input type="number" id="rainfall" name="rainfall" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            </div>
+                        </div>
+
+                         <div class="pt-4">
+                            <label for="temperature" class="block text-sm font-medium text-gray-700">Avg. Temperature (°C)</label>
+                            <div class="flex items-center space-x-3">
+                                <input type="number" step="0.1" id="temperature" name="temperature" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                <button type="button" id="fetch-weather-btn" class="mt-1 bg-blue-500 text-white py-3 px-5 rounded-lg font-semibold hover:bg-blue-600 transition duration-300" title="Get current temp for Kalyan">
+                                    Auto
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold shadow-lg hover:bg-green-700 transition duration-300 ease-in-out transform hover:-translate-y-0.5 !mt-8">
+                            Get Recommendation
+                        </button>
+                    </form>
+
+                    <!-- Recommendation Result Area -->
+                    <div id="recommendation-result" class="mt-8">
+                        <!-- JS will insert results here -->
+                    </div>
+                </div>
+
+                <!-- Right Column: Schemes -->
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Government Schemes</h2>
+                    <div class="space-y-4">
+                         <div>
+                            <label for="state-input" class="block text-sm font-medium text-gray-700">Enter Your State</label>
+                            <input type="text" id="state-input" placeholder="e.g., Maharashtra" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                        </div>
+                        <button id="get-schemes-btn" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold shadow-lg hover:bg-blue-700 transition duration-300">
+                            Find Schemes
+                        </button>
+                    </div>
+                    
+                    <!-- Schemes Result Area -->
+                    <div id="schemes-list" class="mt-6 space-y-4 max-h-96 overflow-y-auto">
+                        <!-- JS will insert schemes here -->
+                    </div>
+                </div>
+
+            </div> <!-- End Main Content Grid -->
+        </div> <!-- End Dashboard Page -->
+
+    </div> <!-- End App -->
+
+
+    <!-- =================================================================
+         GLOBAL JAVASCRIPT LOGIC
+         This is the "brain" of our Single Page App (SPA).
+    ================================================================== -->
+    <script>
+        // --- CONFIGURATION ---
+        const API_BASE_URL = 'http://localhost:3000'; // Your backend server
+        const WEATHER_API_KEY = 'e8e979366f4424844abc17afe58aa8fe'; // Your OpenWeatherMap API key
+        const WEATHER_CITY_NAME = 'Kalyan'; // Auto-fetch temp for this city
+
+        // --- DOM ELEMENTS ---
+        // Page Containers
+        const app = document.getElementById('app');
+        const pages = {
+            login: document.getElementById('login-page'),
+            signup: document.getElementById('signup-page'),
+            dashboard: document.getElementById('dashboard-page')
+        };
+
+        // Auth Forms
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const loginMessage = document.getElementById('login-message');
+        const signupMessage = document.getElementById('signup-message');
+
+        // Navigation Buttons
+        const showSignupBtn = document.getElementById('show-signup-btn');
+        const showLoginBtn = document.getElementById('show-login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // Dashboard Elements
+        const userInfo = document.getElementById('user-info');
+        const fetchWeatherBtn = document.getElementById('fetch-weather-btn');
+        const tempInput = document.getElementById('temperature');
+        const cropForm = document.getElementById('crop-form');
+        const recommendationResult = document.getElementById('recommendation-result');
+        const getSchemesBtn = document.getElementById('get-schemes-btn');
+        const stateInput = document.getElementById('state-input');
+        const schemesList = document.getElementById('schemes-list');
+
+
+        // --- CORE APP LOGIC ---
+
+        /**
+         * Runs when the page first loads.
+         * This is the entry point of our application.
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Add all our button click listeners
+            addEventListeners();
+            
+            // 2. Check if user is already logged in
+            router();
+        });
+
+        /**
+         * The "Router" decides which page to show.
+         * It checks for a login token in localStorage.
+         */
+        function router() {
+            const token = localStorage.getItem('agriToken');
+            const user = JSON.parse(localStorage.getItem('agriUser'));
+
+            if (token && user) {
+                // User is logged in
+                userInfo.textContent = `Welcome, ${user.username}!`;
+                showPage('dashboard');
+            } else {
+                // User is logged out
+                showPage('login');
+            }
+        }
+
+        /**
+         * The core mechanic of our SPA.
+         * Hides all pages, then shows the one we want.
+         * @param {string} pageId - The ID of the page to show ('login', 'signup', 'dashboard')
+         */
+        function showPage(pageId) {
+            // Hide all pages
+            Object.values(pages).forEach(page => {
+                page.style.display = 'none';
+            });
+            // Show the requested page
+            if (pages[pageId]) {
+                pages[pageId].style.display = 'block';
+            }
+        }
+
+        /**
+         * Wire up all the buttons in our app.
+         */
+        function addEventListeners() {
+            // Auth navigation
+            showSignupBtn.addEventListener('click', () => showPage('signup'));
+            showLoginBtn.addEventListener('click', () => showPage('login'));
+            logoutBtn.addEventListener('click', handleLogout);
+
+            // Auth form submissions
+            loginForm.addEventListener('submit', handleLogin);
+            signupForm.addEventListener('submit', handleSignup);
+
+            // Dashboard form submissions
+            cropForm.addEventListener('submit', handleRecommendation);
+            getSchemesBtn.addEventListener('click', handleGetSchemes);
+            fetchWeatherBtn.addEventListener('click', handleFetchWeather);
+        }
+
+
+        // --- AUTHENTICATION FUNCTIONS ---
+
+        /**
+         * Handles the login form submission.
+         * Sends email/password to the backend /api/auth/login endpoint.
+         */
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            loginMessage.textContent = 'Logging in...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Login failed');
+                }
+
+                // SUCCESS! Save token and user info
+                localStorage.setItem('agriToken', data.token);
+                localStorage.setItem('agriUser', JSON.stringify(data.user));
+                
+                // Reset form and route to dashboard
+                loginForm.reset();
+                loginMessage.textContent = '';
+                router();
+
+            } catch (error) {
+                console.error('Login Error:', error);
+                loginMessage.textContent = error.message;
+            }
+        }
+
+        /**
+         * Handles the signup form submission.
+         * Sends user info to the backend /api/auth/register endpoint.
+         */
+        async function handleSignup(e) {
+            e.preventDefault();
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            signupMessage.textContent = 'Creating account...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Signup failed');
+                }
+                
+                // SUCCESS! Show a success message and send to login page
+                signupForm.reset();
+                signupMessage.textContent = '';
+                alert('Account created successfully! Please sign in.');
+                showPage('login');
+
+            } catch (error) {
+                console.error('Signup Error:', error);
+                signupMessage.textContent = error.message;
+            }
+        }
+
+        /**
+         * Logs the user out by clearing localStorage.
+         */
+        function handleLogout() {
+            localStorage.removeItem('agriToken');
+            localStorage.removeItem('agriUser');
+            router(); // Go back to login page
+        }
+
+
+        // --- DASHBOARD FUNCTIONS ---
+
+        /**
+         * Fetches current weather from OpenWeatherMap.
+         */
+        async function handleFetchWeather() {
+            tempInput.value = 'Fetching...';
+            try {
+                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${WEATHER_CITY_NAME}&appid=${WEATHER_API_KEY}&units=metric`);
+                if (!response.ok) {
+                    throw new Error('City not found or API error.');
+                }
+                const data = await response.json();
+                tempInput.value = data.main.temp.toFixed(1); // e.g., 28.5
+            } catch (error) {
+                console.error('Weather Fetch Error:', error);
+                tempInput.value = '';
+                alert(`Could not fetch weather: ${error.message}`);
+            }
+        }
+
+        /**
+         * Handles the crop recommendation form submission.
+         * Sends form data to the protected /api/recommend endpoint.
+         */
+        async function handleRecommendation(e) {
+            e.preventDefault();
+            recommendationResult.innerHTML = `<p class="text-blue-600">Loading your recommendation...</p>`;
+            
+            // Get the auth token from storage
+            const token = localStorage.getItem('agriToken');
+            if (!token) {
+                alert('You are not logged in.');
+                return handleLogout();
+            }
+
+            // Collect form data
+            const formData = new FormData(cropForm);
+            const data = {
+                soil_type: formData.get('soil_type'),
+                ph: parseFloat(formData.get('ph')),
+                nitrogen: parseFloat(formData.get('nitrogen')),
+                phosphorus: parseFloat(formData.get('phosphorus')),
+                potassium: parseFloat(formData.get('potassium')),
+                rainfall: parseFloat(formData.get('rainfall')),
+                temperature: parseFloat(formData.get('temperature'))
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/recommend`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // This is how we prove we are logged in!
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    // Handle errors, including token expiration
+                    if (response.status === 401 || response.status === 403) {
+                        alert('Your session has expired. Please log in again.');
+                        return handleLogout();
+                    }
+                    throw new Error(result.message || 'Recommendation failed');
+                }
+
+                // SUCCESS! Display the recommendation
+                recommendationResult.innerHTML = `
+                    <div class="bg-green-100 border-l-4 border-green-500 text-green-800 p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-bold mb-2">✅ Recommended Crop: ${result.recommended_crop}</h3>
+                        <p class="text-base">This crop is optimal for your **${result.soil_type}** soil and the environmental conditions provided.</p>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Recommendation Error:', error);
+                recommendationResult.innerHTML = `
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-800 p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-bold mb-2">❌ Error</h3>
+                        <p class="text-base">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        /**
+         * Fetches government schemes from the protected /api/schemes endpoint.
+         */
+        async function handleGetSchemes() {
+            const state = stateInput.value.trim();
+            if (!state) {
+                schemesList.innerHTML = `<p class="text-red-600">Please enter a state name.</p>`;
+                return;
+            }
+            
+            schemesList.innerHTML = `<p class="text-blue-600">Fetching schemes for ${state}...</p>`;
+            
+            const token = localStorage.getItem('agriToken');
+            if (!token) {
+                alert('You are not logged in.');
+                return handleLogout();
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/schemes/${state}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const schemes = await response.json();
+
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        alert('Your session has expired. Please log in again.');
+                        return handleLogout();
+                    }
+                    throw new Error(schemes.message || 'Failed to fetch schemes');
+                }
+
+                // SUCCESS! Display schemes
+                if (schemes.length > 0) {
+                    schemesList.innerHTML = schemes.map(scheme => `
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
+                            <h4 class="font-semibold text-gray-800">${scheme.name}</h4>
+                            <p class="text-sm text-gray-600">${scheme.details}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    schemesList.innerHTML = `<p class="text-gray-600">No specific schemes found for ${state}.</p>`;
+                }
+
+            } catch (error) {
+                console.error('Scheme Fetch Error:', error);
+                schemesList.innerHTML = `<p class="text-red-600">${error.message}</p>`;
+            }
+        }
+
+    </script>
 </body>
 </html>
+
+
